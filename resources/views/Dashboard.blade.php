@@ -51,32 +51,32 @@
             </div>
 
             {{-- Bạn có thể thêm các thống kê nhỏ ở đây --}}
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="card text-center shadow-sm">
-                        <div class="card-body">
-                            <h3>120</h3>
-                            <p>Người dùng</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-center shadow-sm">
-                        <div class="card-body">
-                            <h3>35</h3>
-                            <p>Sản phẩm</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-center shadow-sm">
-                        <div class="card-body">
-                            <h3>15</h3>
-                            <p>Đơn hàng</p>
-                        </div>
-                    </div>
-                </div>
+         <div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ $stats['total_users'] }}</h3>
+                <p>Người dùng</p>
             </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ $stats['total_products'] }}</h3>
+                <p>Sản phẩm</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ $stats['total_orders'] }}</h3>
+                <p>Đơn hàng</p>
+            </div>
+        </div>
+    </div>
+</div>
 
         </div>
     </div>

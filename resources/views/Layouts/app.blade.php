@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- Thêm dòng này -->
+
     <title>Manwah Restaurant</title>
     
     <!-- Bootstrap CSS -->
@@ -10,8 +12,7 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
+          <style>
         body {
             background-color: #f8f9fa;
         }
@@ -37,7 +38,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
+            <a class="navbar-brand" href="{{ url('/dashboard') }}">
                 <i class="fas fa-utensils me-2"></i>Manwah Restaurant
             </a>
             
@@ -48,7 +49,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}">
+                        <a class="nav-link" href="{{ url('/dashboard') }}">
                             <i class="fas fa-home me-1"></i>Trang chủ
                         </a>
                     </li>
@@ -89,7 +90,7 @@
                                 
                                 @if(Auth::user()->isAdmin() || Auth::user()->isStaff())
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ route('admin.orders') }}">
+                                    <li><a class="dropdown-item" href="{{ route('orders.index') }}">
                                         <i class="fas fa-cog me-2"></i>Quản lý đơn hàng
                                     </a></li>
                                 @endif
