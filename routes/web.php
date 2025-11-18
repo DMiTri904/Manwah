@@ -80,9 +80,9 @@ Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController
     ->name('password.update');
 
 Auth::routes();
-<<<<<<< Updated upstream
-=======
+
+
 Route::get('/', function () {
     return view('landing_guest');   
 })->name('landing');
->>>>>>> Stashed changes
+
