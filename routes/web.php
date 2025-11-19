@@ -4,25 +4,83 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController; // THÊM DÒNG NÀY
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 
-
 // ============================
-//   TRANG CHỦ → ĐĂNG NHẬP
+//   TRANG CHỦ → LANDING PAGE
 // ============================
 Route::get('/', function () {
-    return view('auth.login');
+    return view('landing_guest');
+})->name('landing');
+
+// ============================
+//   ROUTES CÔNG KHAI
+// ============================
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        return view('welcome');
+    } catch (\Exception $e) {
+        return "❌ Lỗi kết nối DB: " . $e->getMessage();
+    }
 });
 
-Route::middleware('auth')->group(function () {
+// Menu cho khách hàng
+Route::get('/menu', [ProductController::class, 'menu'])->name('menu');
+Route::get('/menu/category/{categoryId}', [ProductController::class, 'filterByCategory'])->name('menu.filter');
+
+// Giỏ hàng công khai
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::put('/cart/{id}', [CartController::class, 'update']);
+Route::delete('/cart/{id}', [CartController::class, 'remove']);
+Route::post('/cart/migrate', [CartController::class, 'migrateCart'])->name('cart.migrate');
+
+// Routes thanh toán - ĐẶT TRƯỚC ORDERS
+// Route::prefix('payment')->group(function () {
+//     Route::get('/{orderId}/form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
+//     Route::post('/{orderId}/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+//     Route::post('/momo/callback', [PaymentController::class, 'momoCallback'])->name('payment.momo.callback');
+//     Route::get('/result', [PaymentController::class, 'paymentResult'])->name('payment.result');
+//     Route::get('/history', [PaymentController::class, 'paymentHistory'])->name('payment.history');
+//     Route::get('/pending-orders', [PaymentController::class, 'pendingOrders'])->name('payment.pending-orders');
+// });
+// Thêm vào routes/web.php
+Route::get('/payment/{orderId}/form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
+Route::post('/payment/{orderId}/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+Route::get('/payment/momo/callback', [PaymentController::class, 'momoCallback'])->name('payment.momo.callback');
+Route::post('/payment/momo/ipn', [PaymentController::class, 'momoIPN'])->name('payment.momo.ipn');
+Route::get('/api/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
+// routes/web.php
+Route::get('/test/momo/signature/{orderId}', [PaymentController::class, 'testMoMoSignature']);
+// routes/web.php
+Route::get('/debug/signature/{orderId}', [PaymentController::class, 'debugSignature']);
+Route::get('/test/momo/fixed', [PaymentController::class, 'testWithFixedData']);
+
+// API Routes
+Route::prefix('api')->group(function () {
+    Route::get('/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
+    Route::post('/momo/ipn', [PaymentController::class, 'momoIPN']);
+    Route::get('/payment/success/{orderId}', [PaymentController::class, 'showSuccess'])->name('payment.success');
+   Route::get('/payment/momo/form/{orderId}', [PaymentController::class, 'showMoMoForm'])->name('payment.momo.form'); // Hiển thị form nhập thẻ
+Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate'); // Xử lý submit form (giả lập)
+
+});
+
+// ============================
+//   ROUTES YÊU CẦU ĐĂNG NHẬP
+// ============================
+Route::middleware(['auth'])->group(function () {
+    
+    
     // Chọn bàn
     Route::get('/choose-table', [TableController::class, 'choose'])->name('choose.table');
     Route::post('/choose-table', [TableController::class, 'setTable'])->name('set.table');
     Route::post('/table/{table}/release', [TableController::class, 'releaseTable'])->name('table.release');
-
 
     // Menu theo bàn
     Route::get('/table/{table}/menu', [ProductController::class, 'menu'])->name('table.menu');
@@ -34,24 +92,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/table/{table}/cart/item/{id}', [CartController::class, 'remove'])->name('table.cart.remove');
     Route::post('/table/{table}/cart/clear', [CartController::class, 'clear'])->name('table.cart.clear');
 
-
-    // Cập nhật món
-    Route::put('/table/{table}/cart/item/{id}', [CartController::class, 'update'])->name('table.cart.update');
-
-    // Xóa món
-    Route::delete('/table/{table}/cart/item/{id}', [CartController::class, 'remove'])->name('table.cart.remove');
-
-
-    // Hóa đơn theo bàn
+    // Đơn hàng theo bàn
     Route::get('/table/{table}/order/create', [OrderController::class, 'create'])->name('table.order.create');
     Route::post('/table/{table}/order', [OrderController::class, 'store'])->name('table.order.store');
 
-
     // ============================
-//     ADMIN / NHÂN VIÊN
-// ============================
-
-    // Dashboard
+    //   ADMIN / NHÂN VIÊN
+    // ============================
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
 
     // Users
@@ -66,9 +113,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
-
 // ============================
-//     PASSWORD RESET
+//   AUTHENTICATION ROUTES
 // ============================
 Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
     ->name('password.request');
@@ -80,9 +126,3 @@ Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController
     ->name('password.update');
 
 Auth::routes();
-
-
-Route::get('/', function () {
-    return view('landing_guest');   
-})->name('landing');
-
