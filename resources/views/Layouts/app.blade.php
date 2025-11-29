@@ -117,6 +117,11 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
+                                    <a class="dropdown-item" href="{{ route('users.show', auth()->id()) }}">
+                                        <i class="fas fa-list me-2"></i>Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
                                         <i class="fas fa-list me-2"></i>Đơn hàng của tôi
                                     </a>

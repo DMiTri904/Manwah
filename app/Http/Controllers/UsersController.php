@@ -65,4 +65,8 @@ class UsersController extends Controller
         $user->delete();
         return redirect()->route('users.index')->with('success', 'Xóa user thành công!');
     }
+        public function show(User $user)
+{
+    return view('users.show', compact('user'));
+}
 }

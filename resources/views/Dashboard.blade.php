@@ -22,6 +22,12 @@
                         📦 Quản lý Products
                     </a>
                 </li>
+
+                <li class="nav-item mb-2">
+                    <a href="{{ route('orders.index') }}" class="nav-link text-white {{ request()->is('products*') ? 'active fw-bold' : '' }}">
+                        📦 Quản lý Hóa Đơn
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -45,6 +51,16 @@
                             <h5 class="card-title">📦 Sản phẩm</h5>
                             <p class="card-text">Quản lý danh sách sản phẩm.</p>
                             <a href="{{ route('products.index') }}" class="btn btn-success">Đi tới Products</a>
+                        </div>
+                    </div>
+                </div>
+
+                  <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title">Hóa đơn</h5>
+                            <p class="card-text">Quản lý danh sách Hóa đơn.</p>
+                            <a href="{{ route('orders.index') }}" class="btn btn-warning">Đi tới hóa dơn</a>
                         </div>
                     </div>
                 </div>
