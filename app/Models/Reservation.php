@@ -12,11 +12,14 @@ class Reservation extends Model
     // Đảm bảo mảng $fillable chứa TẤT CẢ các trường bạn đang gửi
     protected $fillable = [
         'user_id',
+        'customer_name',
+        'customer_phone',
         'restaurant_table_id',
         'reservation_date',
         'reservation_time',
         'guest_count',
         'status',
+        'special_requests',
     ];
 
     /**

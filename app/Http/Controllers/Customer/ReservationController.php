@@ -17,25 +17,27 @@ class ReservationController extends Controller
     }
 
     public function store(StoreReservationRequest $request)
-    {
-        $validated = $request->validated();
+{
+    $validated = $request->validated();
 
-        // reservation_time từ form là datetime-local: "2025-11-30T19:30"
-        $dt = Carbon::parse($validated['reservation_time']);
+    $dt = Carbon::parse($validated['reservation_time']);
 
-        $data = [
-            'user_id'             => Auth::id(),
-            'restaurant_table_id' => null,
-            'reservation_date'    => $dt->toDateString(),
-            'reservation_time'    => $dt->format('H:i:s'),
-            'guest_count'         => $validated['num_guests'],
-            'status'              => 'pending',   // <-- dùng string
-        ];
+    $data = [
+        'user_id'             => Auth::check() ? Auth::id() : null, // nếu đang login thì gán user
+        'customer_name'       => $validated['customer_name'],
+        'customer_phone'      => $validated['customer_phone'],
+        'restaurant_table_id' => null,
+        'reservation_date'    => $dt->toDateString(),
+        'reservation_time'    => $dt->format('H:i:s'),
+        'guest_count'         => $validated['num_guests'],
+        'status'              => 'pending',
+        'special_requests'    => $validated['special_requests'] ?? null,
+    ];
 
-        $reservation = Reservation::create($data);
+    $reservation = Reservation::create($data);
 
-        return redirect()->route('reservations.success', $reservation->id);
-    }
+    return redirect()->route('reservations.success', $reservation->id);
+}
 
     public function showSuccess($id)
     {

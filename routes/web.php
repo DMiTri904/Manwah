@@ -17,16 +17,20 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 
-// ============================
-//   TRANG CHỦ
-// ============================
+/*
+|--------------------------------------------------------------------------
+| TRANG CHỦ
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('landing_guest');
 })->name('landing');
 
-// ============================
-//   DB TEST
-// ============================
+/*
+|--------------------------------------------------------------------------
+| TEST DB
+|--------------------------------------------------------------------------
+*/
 Route::get('/db-test', function () {
     try {
         DB::connection()->getPdo();
@@ -36,24 +40,30 @@ Route::get('/db-test', function () {
     }
 });
 
-// ============================
-//   MENU CHO KHÁCH
-// ============================
+/*
+|--------------------------------------------------------------------------
+| MENU CHO KHÁCH
+|--------------------------------------------------------------------------
+*/
 Route::get('/menu', [ProductController::class, 'menu'])->name('menu');
 Route::get('/menu/category/{categoryId}', [ProductController::class, 'filterByCategory'])->name('menu.filter');
 
-// ============================
-//   GIỎ HÀNG – CÔNG KHAI
-// ============================
+/*
+|--------------------------------------------------------------------------
+| GIỎ HÀNG – CÔNG KHAI
+|--------------------------------------------------------------------------
+*/
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::put('/cart/{id}', [CartController::class, 'update']);
 Route::delete('/cart/{id}', [CartController::class, 'remove']);
 Route::post('/cart/migrate', [CartController::class, 'migrateCart'])->name('cart.migrate');
 
-// ============================
-//   THANH TOÁN – PAYMENT
-// ============================
+/*
+|--------------------------------------------------------------------------
+| THANH TOÁN – PAYMENT
+|--------------------------------------------------------------------------
+*/
 Route::get('/payment/{orderId}/form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
 Route::post('/payment/{orderId}/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 Route::get('/payment/momo/callback', [PaymentController::class, 'momoCallback'])->name('payment.momo.callback');
@@ -64,7 +74,6 @@ Route::get('/test/momo/signature/{orderId}', [PaymentController::class, 'testMoM
 Route::get('/debug/signature/{orderId}', [PaymentController::class, 'debugSignature']);
 Route::get('/test/momo/fixed', [PaymentController::class, 'testWithFixedData']);
 
-// API PAYMENT
 Route::prefix('api')->group(function () {
     Route::get('/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
     Route::post('/momo/ipn', [PaymentController::class, 'momoIPN']);
@@ -73,9 +82,11 @@ Route::prefix('api')->group(function () {
     Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate');
 });
 
-// ============================
-//   ROUTES CẦN ĐĂNG NHẬP
-// ============================
+/*
+|--------------------------------------------------------------------------
+| ROUTES CẦN ĐĂNG NHẬP
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
 
     // CHỌN BÀN
@@ -97,26 +108,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/table/{table}/order/create', [OrderController::class, 'create'])->name('table.order.create');
     Route::post('/table/{table}/order', [OrderController::class, 'store'])->name('table.order.store');
 
-    // DASHBOARD + QUẢN LÝ SẢN PHẨM/NGƯỜI DÙNG
+    // DASHBOARD ADMIN
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
 
     Route::resource('users', UsersController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);
 
-    // QUẢN LÝ ĐƠN HÀNG ADMIN
+    // QUẢN LÝ ĐƠN HÀNG
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
-// ============================
-//   AUTH ROUTES
-// ============================
+/*
+|--------------------------------------------------------------------------
+| AUTH ROUTES
+|--------------------------------------------------------------------------
+*/
 Auth::routes();
 
-// ============================
-//   CUSTOMER RESERVATION
-// ============================
+/*
+|--------------------------------------------------------------------------
+| CUSTOMER RESERVATION
+|--------------------------------------------------------------------------
+*/
 Route::get('/reserve', [CustomerReservationController::class, 'create'])->name('reservations.create');
 Route::post('/reserve', [CustomerReservationController::class, 'store'])->name('reservations.store');
 Route::get('/reserve/success/{reservationId}', [CustomerReservationController::class, 'showSuccess'])->name('reservations.success');
@@ -125,26 +140,17 @@ Route::get('/reservations/history', [CustomerReservationController::class, 'hist
     ->middleware('auth')
     ->name('reservations.history');
 
-// ============================
-//   ADMIN RESERVATION
-// ============================
-Route::prefix('admin')->middleware(['auth', 'role:admin,staff'])->group(function () {
-
-    Route::get('/reservations', [AdminReservationController::class, 'index'])
-        ->name('admin.reservations.index');
-
-    Route::get('/reservations/{reservation}/edit', [AdminReservationController::class, 'edit'])
-        ->name('admin.reservations.edit');
-
-    Route::put('/reservations/{reservation}', [AdminReservationController::class, 'update'])
-        ->name('admin.reservations.update');
-    Route::prefix('admin')
-    ->name('admin.')
+/*
+|--------------------------------------------------------------------------
+| ADMIN RESERVATION
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')
     ->middleware(['auth', 'role:admin,staff'])
+    ->name('admin.')
     ->group(function () {
+
+        // Admin chỉ xem + sửa
         Route::resource('reservations', AdminReservationController::class)
             ->only(['index', 'edit', 'update']);
     });
-
-
-});
