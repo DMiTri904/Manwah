@@ -1,24 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+// CONTROLLERS
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PaymentController; // THÊM DÒNG NÀY
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DashboardController;
-use Illuminate\Support\Facades\Auth;
+
+// RESERVATION CONTROLLERS
+use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
+use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 
 // ============================
-//   TRANG CHỦ → LANDING PAGE
+//   TRANG CHỦ
 // ============================
 Route::get('/', function () {
     return view('landing_guest');
 })->name('landing');
 
 // ============================
-//   ROUTES CÔNG KHAI
+//   DB TEST
 // ============================
 Route::get('/db-test', function () {
     try {
@@ -29,100 +36,107 @@ Route::get('/db-test', function () {
     }
 });
 
-// Menu cho khách hàng
+// ============================
+//   MENU CHO KHÁCH
+// ============================
 Route::get('/menu', [ProductController::class, 'menu'])->name('menu');
 Route::get('/menu/category/{categoryId}', [ProductController::class, 'filterByCategory'])->name('menu.filter');
 
-// Giỏ hàng công khai
+// ============================
+//   GIỎ HÀNG – CÔNG KHAI
+// ============================
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::put('/cart/{id}', [CartController::class, 'update']);
 Route::delete('/cart/{id}', [CartController::class, 'remove']);
 Route::post('/cart/migrate', [CartController::class, 'migrateCart'])->name('cart.migrate');
 
-// Routes thanh toán - ĐẶT TRƯỚC ORDERS
-// Route::prefix('payment')->group(function () {
-//     Route::get('/{orderId}/form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
-//     Route::post('/{orderId}/process', [PaymentController::class, 'processPayment'])->name('payment.process');
-//     Route::post('/momo/callback', [PaymentController::class, 'momoCallback'])->name('payment.momo.callback');
-//     Route::get('/result', [PaymentController::class, 'paymentResult'])->name('payment.result');
-//     Route::get('/history', [PaymentController::class, 'paymentHistory'])->name('payment.history');
-//     Route::get('/pending-orders', [PaymentController::class, 'pendingOrders'])->name('payment.pending-orders');
-// });
-// Thêm vào routes/web.php
+// ============================
+//   THANH TOÁN – PAYMENT
+// ============================
 Route::get('/payment/{orderId}/form', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
 Route::post('/payment/{orderId}/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 Route::get('/payment/momo/callback', [PaymentController::class, 'momoCallback'])->name('payment.momo.callback');
 Route::post('/payment/momo/ipn', [PaymentController::class, 'momoIPN'])->name('payment.momo.ipn');
 Route::get('/api/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
-// routes/web.php
+
 Route::get('/test/momo/signature/{orderId}', [PaymentController::class, 'testMoMoSignature']);
-// routes/web.php
 Route::get('/debug/signature/{orderId}', [PaymentController::class, 'debugSignature']);
 Route::get('/test/momo/fixed', [PaymentController::class, 'testWithFixedData']);
 
-// API Routes
+// API PAYMENT
 Route::prefix('api')->group(function () {
     Route::get('/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
     Route::post('/momo/ipn', [PaymentController::class, 'momoIPN']);
     Route::get('/payment/success/{orderId}', [PaymentController::class, 'showSuccess'])->name('payment.success');
-   Route::get('/payment/momo/form/{orderId}', [PaymentController::class, 'showMoMoForm'])->name('payment.momo.form'); // Hiển thị form nhập thẻ
-Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate'); // Xử lý submit form (giả lập)
-
+    Route::get('/payment/momo/form/{orderId}', [PaymentController::class, 'showMoMoForm'])->name('payment.momo.form');
+    Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate');
 });
 
 // ============================
-//   ROUTES YÊU CẦU ĐĂNG NHẬP
+//   ROUTES CẦN ĐĂNG NHẬP
 // ============================
 Route::middleware(['auth'])->group(function () {
-    
-    
-    // Chọn bàn
+
+    // CHỌN BÀN
     Route::get('/choose-table', [TableController::class, 'choose'])->name('choose.table');
     Route::post('/choose-table', [TableController::class, 'setTable'])->name('set.table');
     Route::post('/table/{table}/release', [TableController::class, 'releaseTable'])->name('table.release');
 
-    // Menu theo bàn
+    // MENU THEO BÀN
     Route::get('/table/{table}/menu', [ProductController::class, 'menu'])->name('table.menu');
 
-    // Giỏ hàng theo bàn
+    // GIỎ HÀNG THEO BÀN
     Route::get('/table/{table}/cart', [CartController::class, 'index'])->name('table.cart');
     Route::post('/table/{table}/cart/add', [CartController::class, 'add'])->name('table.cart.add');
     Route::put('/table/{table}/cart/item/{id}', [CartController::class, 'update'])->name('table.cart.update');
     Route::delete('/table/{table}/cart/item/{id}', [CartController::class, 'remove'])->name('table.cart.remove');
     Route::post('/table/{table}/cart/clear', [CartController::class, 'clear'])->name('table.cart.clear');
 
-    // Đơn hàng theo bàn
+    // ĐƠN HÀNG THEO BÀN
     Route::get('/table/{table}/order/create', [OrderController::class, 'create'])->name('table.order.create');
     Route::post('/table/{table}/order', [OrderController::class, 'store'])->name('table.order.store');
 
-    // ============================
-    //   ADMIN / NHÂN VIÊN
-    // ============================
+    // DASHBOARD + QUẢN LÝ SẢN PHẨM/NGƯỜI DÙNG
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
 
-    // Users
     Route::resource('users', UsersController::class)->except(['show']);
-
-    // Products
     Route::resource('products', ProductController::class)->except(['show']);
 
-    // Orders admin view
+    // QUẢN LÝ ĐƠN HÀNG ADMIN
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
 // ============================
-//   AUTHENTICATION ROUTES
+//   AUTH ROUTES
 // ============================
-Route::get('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->name('password.request');
-Route::post('forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->name('password.email');
-Route::get('reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
-Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
-    ->name('password.update');
-
 Auth::routes();
+
+// ============================
+//   CUSTOMER RESERVATION
+// ============================
+Route::get('/reserve', [CustomerReservationController::class, 'create'])->name('reservations.create');
+Route::post('/reserve', [CustomerReservationController::class, 'store'])->name('reservations.store');
+Route::get('/reserve/success/{reservationId}', [CustomerReservationController::class, 'showSuccess'])->name('reservations.success');
+
+Route::get('/reservations/history', [CustomerReservationController::class, 'history'])
+    ->middleware('auth')
+    ->name('reservations.history');
+
+// ============================
+//   ADMIN RESERVATION
+// ============================
+Route::prefix('admin')->middleware(['auth', 'role:admin,staff'])->group(function () {
+
+    Route::get('/reservations', [AdminReservationController::class, 'index'])
+        ->name('admin.reservations.index');
+
+    Route::get('/reservations/{reservation}/edit', [AdminReservationController::class, 'edit'])
+        ->name('admin.reservations.edit');
+
+    Route::put('/reservations/{reservation}', [AdminReservationController::class, 'update'])
+        ->name('admin.reservations.update');
+
+});
