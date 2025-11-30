@@ -65,14 +65,14 @@
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">
                                             @if($order->table)
-                                                 {{ $order->table->table_number }}
+                                                Bàn {{ $order->table->name }}
                                             @else
                                                 <span class="text-muted">N/A</span>
                                             @endif
                                         </p>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ number_format($order->total_amount) }}đ</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ number_format($order->total) }}đ</p>
                                     </td>
                                     <td>
                                         @if($order->status == 'pending')
@@ -112,7 +112,7 @@
                                     <td class="align-middle">
                                         <div class="btn-group-vertical btn-group-sm">
                                             <!-- Nút Xem chi tiết -->
-                                            <a href="{{ route('orders.shaow', $order->id) }}" class="btn btn-info mb-1">
+                                            <a href="{{ route('orders.show', $order->id) }}" class="btn btn-info mb-1">
                                                 <i class="fas fa-eye me-1"></i>Chi tiết
                                             </a>
                                             

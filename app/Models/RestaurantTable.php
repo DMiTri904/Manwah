@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-
 
 class RestaurantTable extends Model
 {
@@ -18,11 +16,5 @@ class RestaurantTable extends Model
     public function orders()
     {
         return $this->hasMany(Order::class, 'table_id');
-    }
-
-    public function employee()
-    {
-        // employee_id là khóa ngoại nối với id của bảng users
-        return $this->belongsTo(User::class, 'employee_id');
     }
 }

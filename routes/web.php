@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\PaymentController; // THÊM DÒNG NÀY
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;// THÊM DÒNG NÀY
 use Illuminate\Support\Facades\Auth;
 
 // ============================
@@ -34,11 +36,11 @@ Route::get('/menu', [ProductController::class, 'menu'])->name('menu');
 Route::get('/menu/category/{categoryId}', [ProductController::class, 'filterByCategory'])->name('menu.filter');
 
 // Giỏ hàng công khai
-// Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-// Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-// Route::put('/cart/{id}', [CartController::class, 'update']);
-// Route::delete('/cart/{id}', [CartController::class, 'remove']);
-// Route::post('/cart/migrate', [CartController::class, 'migrateCart'])->name('cart.migrate');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::put('/cart/{id}', [CartController::class, 'update']);
+Route::delete('/cart/{id}', [CartController::class, 'remove']);
+Route::post('/cart/migrate', [CartController::class, 'migrateCart'])->name('cart.migrate');
 
 // Routes thanh toán - ĐẶT TRƯỚC ORDERS
 // Route::prefix('payment')->group(function () {
@@ -66,19 +68,8 @@ Route::prefix('api')->group(function () {
     Route::get('/payments/{orderId}/status', [PaymentController::class, 'checkPaymentStatus']);
     Route::post('/momo/ipn', [PaymentController::class, 'momoIPN']);
     Route::get('/payment/success/{orderId}', [PaymentController::class, 'showSuccess'])->name('payment.success');
-    Route::get('/payment/momo/form/{orderId}', [PaymentController::class, 'showMoMoForm'])->name('payment.momo.form'); // Hiển thị form nhập thẻ
-    Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate'); // Xử lý submit form (giả lập)
-
-});
-
-Route::middleware(['auth', 'admin'])->group(function () {
-
-    Route::get('/admin/tables', [TableController::class, 'index'])->name('tables.index');
-    Route::get('/admin/tables/create', [TableController::class, 'create'])->name('tables.create');
-    Route::post('/admin/tables', [TableController::class, 'store'])->name('tables.store');
-    Route::get('/admin/tables/{id}/edit', [TableController::class, 'edit'])->name('tables.edit');
-    Route::put('/admin/tables/{id}', [TableController::class, 'update'])->name('tables.update');
-    Route::delete('/admin/tables/{id}', [TableController::class, 'destroy'])->name('tables.destroy');
+   Route::get('/payment/momo/form/{orderId}', [PaymentController::class, 'showMoMoForm'])->name('payment.momo.form'); // Hiển thị form nhập thẻ
+Route::post('/payment/momo/simulate/{orderId}', [PaymentController::class, 'simulateMoMoPayment'])->name('payment.momo.simulate'); // Xử lý submit form (giả lập)
 
 });
 
@@ -86,8 +77,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 //   ROUTES YÊU CẦU ĐĂNG NHẬP
 // ============================
 Route::middleware(['auth'])->group(function () {
-
-
+    
+    
     // Chọn bàn
     Route::get('/choose-table', [TableController::class, 'choose'])->name('choose.table');
     Route::post('/choose-table', [TableController::class, 'setTable'])->name('set.table');
@@ -110,20 +101,10 @@ Route::middleware(['auth'])->group(function () {
     // ============================
     //   ADMIN / NHÂN VIÊN
     // ============================
-    // Đánh dấu hoàn thành đơn hàng (chỉ staff/admin)
-    Route::post('/orders/{id}/complete', [OrderController::class, 'markAsCompleted'])
-        ->name('orders.complete');
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('Dashboard');
 
     // Users
-  Route::get('/users', [UsersController::class, 'index'])->name('users.index');
-Route::get('/users/create', [UsersController::class, 'create'])->name('users.create');
-Route::post('/users', [UsersController::class, 'store'])->name('users.store');
-Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
-Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
-Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
-Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
+    Route::resource('users', UsersController::class)->except(['show']);
 
     // Products
     Route::resource('products', ProductController::class)->except(['show']);
@@ -132,6 +113,8 @@ Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show'
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+
 });
 
 // ============================

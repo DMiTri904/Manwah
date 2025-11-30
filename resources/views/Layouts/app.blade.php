@@ -117,11 +117,6 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('users.show', auth()->id()) }}">
-                                        <i class="fas fa-list me-2"></i>Thông tin cá nhân
-                                    </a>
-                                </li>
-                                <li>
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
                                         <i class="fas fa-list me-2"></i>Đơn hàng của tôi
                                     </a>
@@ -136,11 +131,6 @@
                                             <i class="fas fa-cog me-2"></i>Quản lý đơn hàng
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('tables.index') }}">
-                                            <i class="fas fa-chair me-2"></i>Quản lý bàn
-                                        </a>
-                                    </li>
                                 @endif
 
                                 <li>
@@ -148,7 +138,7 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                         document.getElementById('logout-form').submit();">
+                                                     document.getElementById('logout-form').submit();">
                                         <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
                                     </a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
