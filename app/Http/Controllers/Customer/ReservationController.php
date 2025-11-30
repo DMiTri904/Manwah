@@ -5,32 +5,43 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReservationRequest;
 use App\Models\Reservation;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
     public function create()
     {
-        return view('customer.create');
+        // Trang form đặt bàn của khách
+        return view('customer.reservations.create');
     }
 
     public function store(StoreReservationRequest $request)
     {
         $validated = $request->validated();
-        $validated['user_id'] = Auth::id();
-        $validated['status'] = 'pending';
-        $validated['reservation_time'] = $this->parseDate($validated['reservation_time']);
 
-        $reservation = Reservation::create($validated);
+        // reservation_time từ form là datetime-local: "2025-11-30T19:30"
+        $dt = Carbon::parse($validated['reservation_time']);
+
+        $data = [
+            'user_id'             => Auth::id(),
+            'restaurant_table_id' => null,
+            'reservation_date'    => $dt->toDateString(),
+            'reservation_time'    => $dt->format('H:i:s'),
+            'guest_count'         => $validated['num_guests'],
+            'status'              => 'pending',   // <-- dùng string
+        ];
+
+        $reservation = Reservation::create($data);
 
         return redirect()->route('reservations.success', $reservation->id);
     }
 
     public function showSuccess($id)
     {
-        $reservation = Reservation::findOrFail($id);
-        return view('customer.reservation_success', compact('reservation'));
+        $reservation = Reservation::with(['user', 'restaurantTable'])->findOrFail($id);
+
+        return view('customer.reservations.success', compact('reservation'));
     }
 
     public function history()
@@ -38,18 +49,10 @@ class ReservationController extends Controller
         abort_unless(Auth::check(), 403);
 
         $reservations = Reservation::where('user_id', Auth::id())
-            ->latest()
+            ->orderByDesc('reservation_date')
+            ->orderByDesc('reservation_time')
             ->get();
 
         return view('customer.reservations.history', compact('reservations'));
-    }
-
-    private function parseDate($time)
-    {
-        try {
-            return Carbon::createFromFormat('m/d/Y h:i A', $time)->toDateTimeString();
-        } catch (\Throwable) {
-            return date('Y-m-d H:i:s', strtotime($time));
-        }
     }
 }

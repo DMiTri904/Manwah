@@ -6,13 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Services\TableService;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Models\Reservation;
-use App\Enums\ReservationStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ReservationController extends Controller
 {
-    protected $tableService;
+    protected TableService $tableService;
 
     public function __construct(TableService $tableService)
     {
@@ -32,9 +31,8 @@ class ReservationController extends Controller
 
     public function edit(Reservation $reservation)
     {
-        // Danh sách bàn khả dụng + bàn đang gán
         $tables = \App\Models\RestaurantTable::where('status', 'available')
-            ->orWhere('id', $reservation->table_id)
+            ->orWhere('id', $reservation->restaurant_table_id)
             ->get();
 
         return view('admin.reservations.edit', compact('reservation', 'tables'));
@@ -47,37 +45,37 @@ class ReservationController extends Controller
         DB::beginTransaction();
 
         try {
-            $oldTable = $reservation->table_id;
-            $oldStatus = $reservation->status;
+            $oldTable  = $reservation->restaurant_table_id;
+            $oldStatus = $reservation->status;    // 'pending' / 'confirmed' / ...
 
-            $newStatus = $validated['status'];
-            $newTable = $validated['table_id'] ?? null;
+            $newStatus = $validated['status'];    // string
+            $newTable  = $validated['table_id'] ?? null;
 
-            // =============== VALIDATION QUAN TRỌNG ===============
-            // Nếu admin chọn "Xác nhận" nhưng chưa chọn bàn → báo lỗi
-            if ($newStatus === ReservationStatus::CONFIRMED && !$newTable) {
+            // Nếu admin chọn "Đã xác nhận" mà không chọn bàn -> báo lỗi
+            if ($newStatus === 'confirmed' && !$newTable) {
                 throw new \Exception("Vui lòng chọn bàn khi xác nhận đơn.");
             }
 
             // Cập nhật trước
-            $reservation->update($validated);
+            $reservation->update([
+                'status'              => $newStatus,
+                'restaurant_table_id' => $newTable,
+            ]);
 
-            // =============== GIẢI PHÓNG BÀN CŨ ===============
-            if ($oldTable && $oldStatus === ReservationStatus::CONFIRMED) {
+            // Giải phóng bàn cũ nếu trước đó là confirmed
+            if ($oldTable && $oldStatus === 'confirmed') {
 
                 $shouldReleaseOldTable =
-                    $newStatus !== ReservationStatus::CONFIRMED     // đổi sang cancelled/completed/pending
-                    || ($newStatus === ReservationStatus::CONFIRMED && $oldTable != $newTable); // đổi bàn
+                    $newStatus !== 'confirmed' ||
+                    ($newStatus === 'confirmed' && $oldTable != $newTable);
 
                 if ($shouldReleaseOldTable) {
                     $this->tableService->releaseTable($oldTable);
                 }
             }
 
-            // =============== GÁN BÀN MỚI ===============
-            if ($newStatus === ReservationStatus::CONFIRMED) {
-
-                // Chống DOUBLE BOOKING: kiểm tra bàn vẫn còn available
+            // Gán bàn mới nếu trạng thái là confirmed
+            if ($newStatus === 'confirmed' && $newTable) {
                 $assignResult = $this->tableService->assignTable($reservation, $newTable);
 
                 if (!$assignResult) {
@@ -95,7 +93,9 @@ class ReservationController extends Controller
             DB::rollBack();
             Log::error("Reservation update error: " . $e->getMessage());
 
-            return back()->with('error', $e->getMessage())->withInput();
+            return back()
+                ->with('error', $e->getMessage())
+                ->withInput();
         }
     }
 }

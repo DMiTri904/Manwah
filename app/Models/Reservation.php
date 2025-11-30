@@ -12,12 +12,10 @@ class Reservation extends Model
     // Đảm bảo mảng $fillable chứa TẤT CẢ các trường bạn đang gửi
     protected $fillable = [
         'user_id',
-        'table_id',
-        'customer_name',
-        'customer_phone',
-        'num_guests',
+        'restaurant_table_id',
+        'reservation_date',
         'reservation_time',
-        'special_requests',
+        'guest_count',
         'status',
     ];
 
@@ -50,6 +48,6 @@ class Reservation extends Model
      */
     public function restaurantTable()
     {
-        return $this->belongsTo(RestaurantTable::class, 'table_id');
+        return $this->belongsTo(RestaurantTable::class, 'restaurant_table_id');
     }
 }

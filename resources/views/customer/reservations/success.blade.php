@@ -129,62 +129,48 @@
     }
 </style>
 
-<div class="container success-container">
+
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            
-            <div class="ticket-card">
-                <div class="ticket-header">
-                    <div class="icon-circle">
-                        <i class="fas fa-check success-icon"></i>
-                    </div>
-                    <h2 class="main-title">Đặt Bàn Thành Công!</h2>
-                    <p class="mb-0 opacity-75">Cảm ơn quý khách đã lựa chọn chúng tôi</p>
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Đặt bàn thành công</h4>
                 </div>
+                <div class="card-body">
+                    <p>Cảm ơn bạn đã đặt bàn tại nhà hàng Manwah.</p>
 
-                <div class="ticket-body">
-                    
-                    <div class="text-center mb-4">
-                        <p class="text-muted">Mã đặt bàn của bạn là:</p>
-                        <h3 class="text-dark fw-bold" style="letter-spacing: 2px;">#{{ $reservation->id }}</h3>
-                    </div>
+                    <h5 class="mt-4">Thông tin đặt bàn</h5>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item">
+                            <strong>Mã đơn:</strong> #{{ $reservation->id }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Khách hàng:</strong> {{ $reservation->user->full_name ?? 'Khách hàng' }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Ngày:</strong> {{ $reservation->reservation_date }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Giờ:</strong> {{ $reservation->reservation_time }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Số khách:</strong> {{ $reservation->guest_count }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Trạng thái:</strong> {{ ucfirst($reservation->status) }}
+                        </li>
+                    </ul>
 
-                    <div class="dashed-line"></div>
-
-                    <div class="detail-section">
-                        <div class="detail-row">
-                            <span class="detail-label"><i class="far fa-clock me-2"></i>Thời gian:</span>
-                            <span class="detail-value time-highlight">
-                                {{ \Carbon\Carbon::parse($reservation->reservation_time)->format('H:i - d/m/Y') }}
-                            </span>
-                        </div>
-                        
-                        <div class="detail-row">
-                            <span class="detail-label"><i class="fas fa-user-friends me-2"></i>Số lượng:</span>
-                            <span class="detail-value">{{ $reservation->num_guests }} Khách</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label"><i class="fas fa-info-circle me-2"></i>Trạng thái:</span>
-                            <span class="badge bg-warning text-dark">Đang chờ xác nhận</span>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-light border mt-4 text-center small text-muted">
-                        <i class="fas fa-envelope-open-text me-1"></i> 
-                        Chúng tôi sẽ gửi email xác nhận trong vòng 15 phút.
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <a href="{{ route('landing') }}" class="btn btn-home">
-                            <i class="fas fa-home me-2"></i> Quay Về Trang Chủ
-                        </a>
-                    </div>
+                    <a href="{{ url('/') }}" class="btn btn-outline-secondary">
+                        Về trang chủ
+                    </a>
+                    <a href="{{ route('reservations.history') }}" class="btn btn-primary">
+                        Xem lịch sử đặt bàn
+                    </a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-
 @endsection

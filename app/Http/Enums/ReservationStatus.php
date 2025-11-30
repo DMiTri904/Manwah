@@ -9,13 +9,13 @@ class ReservationStatus
     const CANCELLED = 'cancelled';
     const COMPLETED = 'completed';
 
-    public static function all()
+    public static function all(): array
     {
         return [
             self::PENDING,
             self::CONFIRMED,
             self::CANCELLED,
-            self::COMPLETED
+            self::COMPLETED,
         ];
     }
 }

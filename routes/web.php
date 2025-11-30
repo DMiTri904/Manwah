@@ -138,5 +138,13 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,staff'])->group(function
 
     Route::put('/reservations/{reservation}', [AdminReservationController::class, 'update'])
         ->name('admin.reservations.update');
+    Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:admin,staff'])
+    ->group(function () {
+        Route::resource('reservations', AdminReservationController::class)
+            ->only(['index', 'edit', 'update']);
+    });
+
 
 });

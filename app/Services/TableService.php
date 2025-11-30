@@ -43,7 +43,7 @@ class TableService
      */
     public function isTableTaken($tableId, $startTime, $ignoreReservationId = null)
     {
-        return Reservation::where('table_id', $tableId)
+        return Reservation::where('restaurant_table_id', $tableId)
             ->where('reservation_time', $startTime)
             ->where('status', 'confirmed')
             ->when($ignoreReservationId, fn($q) =>
