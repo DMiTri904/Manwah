@@ -1,25 +1,8 @@
- HEAD
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
 /vendor
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
-=======
 /vendor/
+/node_modules
 node_modules/
+
 npm-debug.log
 yarn-error.log
 
@@ -35,17 +18,22 @@ public/hot
 public_html/storage
 public_html/hot
 
-storage/*.key
-.env
-Homestead.yaml
-Homestead.json
-/.vagrant
-.phpunit.result.cache
+/storage/*.key
+/storage/pail
 
 /public/build
-/storage/pail
+/public/hot
+/public/storage
+
+.env
 .env.backup
 .env.production
+.phpunit.result.cache
 .phpactor.json
+Homestead.json
+Homestead.yaml
+/.vagrant
+/.fleet
+/.idea
+/.vscode
 auth.json
- f285aa07e0c3018bc14d8aa345620ab235271162
