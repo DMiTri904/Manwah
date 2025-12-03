@@ -90,6 +90,16 @@
                             </a>
                         @endif
                     </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('reservations.create') }}">
+                               <i class="fa-solid fa-utensils"></i> Đặt bàn ngay
+                            </a>
+                        </li>
+                               <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.reservations.index') }}">
+                               <i class="fa-solid fa-utensils"></i> quản lý đặt bàn
+                            </a>
+                        </li>
                 </ul>
 
                 <ul class="navbar-nav">
@@ -119,6 +129,12 @@
                                 <li>
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
                                         <i class="fas fa-list me-2"></i>Đơn hàng của tôi
+                                    </a>
+                                </li>
+
+                                 <li>
+                                    <a class="dropdown-item" href="{{ route('reservations.history') }}">
+                                        <i class="fas fa-list me-2"></i>Lịch sử đặt bàn
                                     </a>
                                 </li>
 
