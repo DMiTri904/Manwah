@@ -22,7 +22,11 @@ class ReservationController extends Controller
     public function index()
     {
         $reservations = Reservation::with(['user', 'restaurantTable'])
+            // 🔽 Đưa đơn mới cập nhật lên đầu
+            ->orderByDesc('updated_at')
+            // (tuỳ chọn) nếu cùng updated_at thì sắp theo status
             ->orderByRaw("FIELD(status, 'pending', 'confirmed', 'cancelled', 'completed')")
+            // (tuỳ chọn) rồi đến thời gian đặt
             ->orderBy('reservation_time')
             ->paginate(15);
 
