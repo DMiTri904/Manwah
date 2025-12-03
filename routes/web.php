@@ -1,9 +1,8 @@
 <?php
 use Illuminate\Support\Facades\DB;
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+
 
 // CONTROLLERS
 use App\Http\Controllers\UsersController;
@@ -14,7 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;// THÊM DÒNG NÀY
-use Illuminate\Support\Facades\Auth;
+
 
 // RESERVATION CONTROLLERS
 use App\Http\Controllers\Customer\ReservationController as CustomerReservationController;
