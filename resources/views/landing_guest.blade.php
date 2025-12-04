@@ -158,14 +158,28 @@
           <!-- simple booking form (public) -->
           <div class="card p-3">
             <h5>Đặt bàn nhanh</h5>
-            <form action="" method="POST">
-              @csrf
-              <div class="mb-2"><input class="form-control" name="name" placeholder="Họ tên" required></div>
-              <div class="mb-2"><input class="form-control" name="phone" placeholder="Số điện thoại" required></div>
-              <div class="mb-2"><input class="form-control" name="date" type="date" required></div>
-              <div class="mb-2"><select class="form-control" name="people"><option>2</option><option>3</option><option>4</option><option>5+</option></select></div>
-              <button class="btn btn-primary w-100">Gửi yêu cầu</button>
-            </form>
+           <form action="{{ route('reservations.store') }}" method="POST">
+    @csrf
+
+    <div class="mb-2">
+        <input class="form-control" name="customer_name" placeholder="Họ tên" required>
+    </div>
+
+    <div class="mb-2">
+        <input class="form-control" name="customer_phone" placeholder="Số điện thoại" required>
+    </div>
+
+    <div class="mb-2">
+        <input class="form-control" name="reservation_time" type="datetime-local" required>
+    </div>
+
+    <div class="mb-2">
+        <input class="form-control" name="num_guests" type="number" min="1" required>
+    </div>
+
+    <button class="btn btn-primary w-100">Gửi yêu cầu</button>
+</form>
+
             <small class="text-muted d-block mt-2">Lưu ý: khách không cần đăng nhập để gửi yêu cầu đặt bàn.</small>
           </div>
         </div>
